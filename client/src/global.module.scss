@@ -6,9 +6,24 @@
   flex-direction: column;
 }
 
-
 .ButtonUnderline {
   > span {
     text-decoration: underline;
   }
+}
+
+.Title {
+  font-size: 10vmin;
+  font-weight: 900;
+  line-height: 1em;
+  margin: unset;
+  padding: unset;
+}
+
+.Subtitle {
+  font-size: 4vmin;
+  font-weight: 600;
+  line-height: 1em;
+  margin: unset;
+  padding: unset;
 }
