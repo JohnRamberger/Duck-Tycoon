@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Duck Tycoon",
+  "name": "Duck Tycoon game.",
   "icons": [
     {
       "src": "favicon.ico",
