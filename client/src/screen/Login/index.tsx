@@ -53,7 +53,7 @@ export const LoginScreen: React.FC = () => {
         messageApi.open({
           key: messageKey,
           type: 'error',
-          content: `Failed to register account: ${error.message}`,
+          content: `Failed to login: ${error.message}`,
           duration: 10,
         });
       });
@@ -122,6 +122,9 @@ export const LoginScreen: React.FC = () => {
           onFinishFailed={onFinishFailed}
           autoComplete="on"
         >
+          <h1 style={{ textAlign: 'center' }}>
+            {isLogin ? 'Login' : 'Register'}
+          </h1>
           {!isLogin && (
             <Form.Item<FieldType>
               label="Username"
@@ -154,7 +157,7 @@ export const LoginScreen: React.FC = () => {
               {isLogin ? 'Login' : 'Register'}
             </Button>
           </Form.Item>
-          <p>
+          <p style={{ textAlign: 'center' }}>
             {isLogin ? 'Need an account?' : 'Already have an account?'}{' '}
             <Button
               type="text"

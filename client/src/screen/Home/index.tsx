@@ -6,6 +6,8 @@ import { auth } from '../../firebase';
 
 import { Flex, Button, Popconfirm } from 'antd';
 
+import { useNavigate } from 'react-router-dom';
+
 const welcomeMessage = (username: string) => {
   let options = [`Welcome back, ${username}!`, `Hello, ${username}!`, 'Quack!'];
 
@@ -13,8 +15,14 @@ const welcomeMessage = (username: string) => {
 };
 
 export const HomeScreen: React.FC = () => {
+  const nav = useNavigate();
+
   const confirm = () => {
     signOut(auth);
+  };
+
+  const enter = () => {
+    nav('/play');
   };
 
   return (
@@ -35,7 +43,7 @@ export const HomeScreen: React.FC = () => {
       <Flex vertical gap={'4em'}>
         <h1 className={globalstyles.Title}>Duck Tycoon</h1>
         <h3 className={globalstyles.Subtitle}>{welcomeMessage('John')}</h3>
-        <Button type="primary" shape="round" size="large">
+        <Button type="primary" shape="round" size="large" onClick={enter}>
           Enter
         </Button>
       </Flex>

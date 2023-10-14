@@ -10,9 +10,16 @@ import { LoginScreen } from './screen/Login';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from 'react-router-dom';
+import { PlayScreen } from './screen/Play';
+
 const App = () => {
-  // check if user is logged in
   const [messageApi, contextHolder] = message.useMessage();
+  // check if user is logged in
   const [loggedIn, setLoggedIn] = useState<boolean | undefined>();
 
   useEffect(() => {
@@ -32,11 +39,10 @@ const App = () => {
         });
       }
       setLoggedIn(user != null);
-
-      return () => {
-        unsub();
-      };
     });
+    return () => {
+      unsub();
+    };
   }, [messageApi, loggedIn]);
 
   return (
@@ -50,15 +56,36 @@ const App = () => {
         }}
       >
         <Space>
-          {contextHolder}
+          <RouterProvider
+            router={createBrowserRouter([
+              {
+                path: '/',
+                element: (
+                  <>
+                    {contextHolder}
 
-          {loggedIn === undefined && <IntroLoadScreen />}
-          {loggedIn !== undefined && (
-            <>
-              {!loggedIn && <LoginScreen />}
-              {loggedIn && <HomeScreen />}
-            </>
-          )}
+                    {loggedIn === undefined && <IntroLoadScreen />}
+                    {loggedIn !== undefined && (
+                      <>
+                        {!loggedIn && <LoginScreen />}
+                        {loggedIn && <HomeScreen />}
+                      </>
+                    )}
+                  </>
+                ),
+              },
+              {
+                path: '/play',
+                element: loggedIn ? (
+                  <PlayScreen />
+                ) : loggedIn !== undefined ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <IntroLoadScreen />
+                ),
+              },
+            ])}
+          />
         </Space>
       </ConfigProvider>
     </div>
