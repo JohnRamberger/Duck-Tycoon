@@ -3,8 +3,8 @@ import './App.css';
 import { ConfigProvider, Space, theme } from 'antd';
 
 import { HomeScreen } from './screen/Home';
-import { IntroLoadScreen } from './screen/IntroLoad';
-import { LoginScreen } from './screen/Login';
+// import { IntroLoadScreen } from './screen/IntroLoad';
+// import { LoginScreen } from './screen/Login';
 
 const App = () => {
   return (
