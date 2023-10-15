@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { SchoolQuestion } from '../../component/SchoolQuestion';
 import { SCHOOL_QUESTIONS } from '../../data/questions';
+import { useMutation } from '@tanstack/react-query';
+
+import { auth } from '../../firebase';
 
 export const SchoolMinigame: React.FC = () => {
   const nav = useNavigate();
@@ -26,8 +29,31 @@ export const SchoolMinigame: React.FC = () => {
   const [correct, setCorrect] = useState(0);
   const [current, setCurrent] = useState(0);
 
-  const handleNext = () => {
+  const [loading, setLoading] = useState(true);
+
+  const winMutation = useMutation({
+    mutationFn: ({ userid }: { userid: String }) =>
+      fetch(`/api/user/${userid}/actions/study`, {
+        method: 'POST'
+      }),
+  });
+
+  const handleNext = async () => {
     if (current === 4) {
+      // check if won
+      if (correct >= 4) {
+        winMutation.mutate(
+          { userid: auth.currentUser?.uid! },
+          {
+            onSuccess: () => {
+              setLoading(false);
+            },
+          }
+        );
+      } else {
+        setLoading(false);
+      }
+
       // done
       setScreen('end');
       return;
@@ -127,6 +153,7 @@ export const SchoolMinigame: React.FC = () => {
               onClick={() => {
                 nav('/main');
               }}
+              loading={loading}
             >
               Go Home
             </Button>

@@ -4,7 +4,15 @@ import { useNavigate } from 'react-router-dom';
 
 import duck from '../../img/duckicon.png';
 
-export const ProfileCard: React.FC = () => {
+interface ProfileCardProps {
+  username: string;
+  salary: number;
+}
+
+export const ProfileCard: React.FC<ProfileCardProps> = ({
+  username,
+  salary,
+}: ProfileCardProps) => {
   const nav = useNavigate();
   return (
     <button
@@ -17,10 +25,10 @@ export const ProfileCard: React.FC = () => {
       <p className={styles.InfoText}>Click here to view your stats!</p>
       <div className={styles.Table}>
         <div>
-          <h2>Username</h2>
+          <h2>{username ?? 'Username'}</h2>
         </div>
         <div>
-          <h3>Salary: $123</h3>
+          <h3>Salary: ${salary}</h3>
         </div>
       </div>
     </button>
