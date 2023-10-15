@@ -140,7 +140,7 @@ export const StatsScreen = () => {
                   direction: checking_direction,
                 }}
                 savings={{
-                  value: update_stats?.p_new_saving,
+                  value: update_stats?.p_new_savings,
                   direction: saving_direction,
                 }}
               />
