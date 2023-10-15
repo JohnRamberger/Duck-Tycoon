@@ -9,7 +9,6 @@ import {
 
 import { auth } from '../../firebase';
 import { useMutation } from '@tanstack/react-query';
-import { Value } from 'sass';
 
 type FieldType = {
   username?: string;
