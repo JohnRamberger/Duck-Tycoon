@@ -1,7 +1,13 @@
 import { Button, Flex, Tour } from 'antd';
 import type { TourProps } from 'antd';
 
-import duck from '../../img/duckicon.png';
+// import duck from '../../img/duckicon.png';
+
+import school from '../../img/school.png';
+import work from '../../img/work.png';
+import bank from '../../img/bank.png';
+import exchange from '../../img/exchange.png';
+import leaderboard from '../../img/leaderboard.png';
 
 import { useNavigate } from 'react-router-dom';
 import { MainButton } from '../../component/MainButton';
@@ -88,7 +94,7 @@ export const MainScreen: React.FC = () => {
           <div ref={ref1}>
             <MainButton
               title="School"
-              img={duck}
+              img={school}
               onClick={() => {
                 nav('/school');
               }}
@@ -99,7 +105,7 @@ export const MainScreen: React.FC = () => {
           <div ref={ref2}>
             <MainButton
               title="Work"
-              img={duck}
+              img={work}
               onClick={() => {
                 nav('/work');
               }}
@@ -110,7 +116,7 @@ export const MainScreen: React.FC = () => {
           <div ref={ref3}>
             <MainButton
               title="Bank"
-              img={duck}
+              img={bank}
               onClick={() => {
                 nav('/bank');
               }}
@@ -119,7 +125,7 @@ export const MainScreen: React.FC = () => {
           <div ref={ref4}>
             <MainButton
               title="Exchange"
-              img={duck}
+              img={exchange}
               onClick={() => {
                 nav('/exchange');
               }}
@@ -128,7 +134,7 @@ export const MainScreen: React.FC = () => {
           <div ref={ref5}>
             <MainButton
               title="Leaderboard"
-              img={duck}
+              img={leaderboard}
               onClick={() => {
                 nav('/leaderboard');
               }}
