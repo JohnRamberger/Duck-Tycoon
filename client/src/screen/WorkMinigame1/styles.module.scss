@@ -1,6 +1,11 @@
 .AnimFrame {
-    display: block;
+    display: flex;
     width: 100%;
     height: 20vh;
-    border: 1px solid red;
+    justify-content: space-between;
+}
+
+.AnimDuck, .AnimBee {
+    height: 100%;
+    transition: all 0.5s ease;
 }
