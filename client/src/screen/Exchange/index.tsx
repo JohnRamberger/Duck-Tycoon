@@ -11,7 +11,7 @@ export const ExchangeScreen: React.FC = () => {
   const nav = useNavigate();
   const userid = auth.currentUser?.uid;
 
-  const { data: owned_stocks, isLoading: owned_stocks_loading } = useQuery(
+  const { data: owned_stocks } = useQuery(
     [userid, 'stocks'],
     async () => {
       const res = await fetch(`/api/user/${userid}/stocks`);
@@ -19,7 +19,7 @@ export const ExchangeScreen: React.FC = () => {
     }
   );
 
-  const { data: update_stats, isLoading: update_stats_loading } = useQuery(
+  const { data: update_stats } = useQuery(
     [userid, 'update_stats'],
     async () => {
       const res = await fetch(`/api/user/${userid}/actions/update_stats`, {
@@ -29,7 +29,7 @@ export const ExchangeScreen: React.FC = () => {
     }
   );
 
-  const { data: all_stock_data, isLoading: all_stock_data_loading } = useQuery(
+  const { data: all_stock_data } = useQuery(
     ['stock'],
     async () => {
       const res = await fetch(`/api/stock/`);
@@ -113,6 +113,7 @@ export const ExchangeScreen: React.FC = () => {
                         (share: any) => share.stockid === stock.id
                       )?.num_shares_owned ?? 0
                     }
+                    stockId={stock.id}
                   />
                 );
               })}
