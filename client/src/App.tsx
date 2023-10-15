@@ -15,7 +15,8 @@ import {
   RouterProvider,
   Navigate,
 } from 'react-router-dom';
-import { PlayScreen } from './screen/Play';
+import { StatsScreen } from './screen/Stats';
+import { MainScreen } from './screen/Main';
 
 const App = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -75,9 +76,19 @@ const App = () => {
                 ),
               },
               {
-                path: '/play',
+                path: '/stats',
                 element: loggedIn ? (
-                  <PlayScreen />
+                  <StatsScreen />
+                ) : loggedIn !== undefined ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <IntroLoadScreen />
+                ),
+              },
+              {
+                path: '/main',
+                element: loggedIn ? (
+                  <MainScreen />
                 ) : loggedIn !== undefined ? (
                   <Navigate to="/" replace />
                 ) : (

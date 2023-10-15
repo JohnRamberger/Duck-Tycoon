@@ -1,4 +1,4 @@
-import { Card, Avatar, Flex, Statistic } from 'antd';
+import { Card, Flex, Statistic } from 'antd';
 import { CaretUpOutlined, CaretDownOutlined } from '@ant-design/icons';
 
 interface NetWorthCardProps {
@@ -13,9 +13,13 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
   avatar = undefined,
 }: NetWorthCardProps) => {
   return (
-    <Card style={{ width: '60vw' }}>
+    <Card style={{ width: '100%' }}>
       <Flex style={{ width: '100%' }} gap={'1em'} align="center">
-        <Avatar size={'large'} src={avatar} />
+        <img
+          src={avatar}
+          alt="avatar"
+          style={{ height: '7em', width: 'auto', borderRadius: "1000px" }}
+        />
         <Flex style={{ flexGrow: 1 }} justify="center">
           <Statistic value={value} title="Net Worth" prefix={'$'} />
         </Flex>

@@ -22,7 +22,7 @@ export const HomeScreen: React.FC = () => {
   };
 
   const enter = () => {
-    nav('/play');
+    nav('/main');
   };
 
   return (
