@@ -17,6 +17,8 @@ import {
 } from 'react-router-dom';
 import { StatsScreen } from './screen/Stats';
 import { MainScreen } from './screen/Main';
+import { SchoolMinigame } from './screen/SchoolMinigame';
+import { WorkMinigame1 } from './screen/WorkMinigame1';
 
 const App = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -89,6 +91,26 @@ const App = () => {
                 path: '/main',
                 element: loggedIn ? (
                   <MainScreen />
+                ) : loggedIn !== undefined ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <IntroLoadScreen />
+                ),
+              },
+              {
+                path: '/school',
+                element: loggedIn ? (
+                  <SchoolMinigame />
+                ) : loggedIn !== undefined ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <IntroLoadScreen />
+                ),
+              },
+              {
+                path: '/work',
+                element: loggedIn ? (
+                  <WorkMinigame1 />
                 ) : loggedIn !== undefined ? (
                   <Navigate to="/" replace />
                 ) : (
