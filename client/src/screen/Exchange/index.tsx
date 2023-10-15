@@ -36,7 +36,7 @@ export const ExchangeScreen: React.FC = () => {
       return res.json();
     }
   );
-  console.log(owned_stocks, update_stats, all_stock_data);
+  
 
   return (
     <div className={globalstyles.Center}>

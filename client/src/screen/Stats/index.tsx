@@ -76,6 +76,16 @@ export const StatsScreen = () => {
       return res.json();
     }
   );
+  console.log(owned_stocks, update_stats, all_stock_data);
+
+  const checking_change =
+    update_stats?.p_new_checking - update_stats?.p_old_checking;
+  const saving_change = update_stats?.p_new_saving - update_stats?.p_old_saving;
+  const net_worth_change =
+    update_stats?.p_new_net_worth - update_stats?.p_old_net_worth;
+  const checking_direction = checking_change >= 0 ? 'up' : 'down';
+  const saving_direction = saving_change >= 0 ? 'up' : 'down';
+  const net_worth_direction = net_worth_change >= 0 ? 'up' : 'down';
 
   return (
     <div
@@ -99,7 +109,11 @@ export const StatsScreen = () => {
         />
         <h1 className={globalstyles.Subtitle}>Here's how you're doing!</h1>
         <div ref={ref1} style={{ width: '100%' }}>
-          <NetWorthCard avatar={duck} value={100_000} direction={'up'} />
+          <NetWorthCard
+            avatar={duck}
+            value={update_stats?.p_new_net_worth}
+            direction={net_worth_direction}
+          />
         </div>
         <Flex style={{ width: '100%' }} gap={gap}>
           <Flex
@@ -118,8 +132,14 @@ export const StatsScreen = () => {
               style={{ width: '100%', height: '100%', alignSelf: 'stretch' }}
             >
               <BankCard
-                checking={{ value: 12, direction: 'down' }}
-                savings={{ value: 123456, direction: 'up' }}
+                checking={{
+                  value: update_stats?.p_new_checking,
+                  direction: checking_direction,
+                }}
+                savings={{
+                  value: update_stats?.p_new_saving,
+                  direction: saving_direction,
+                }}
               />
             </div>
           </Flex>
@@ -137,24 +157,15 @@ export const StatsScreen = () => {
             />
             <Card style={{ width: '100%' }}>
               <Flex vertical gap="1em">
-                <SimpleStockRow
-                  ticker="DUCK"
-                  marketPriceChange={12}
-                  marketPrice={100}
-                  direction="down"
-                />
-                <SimpleStockRow
-                  ticker="DUCK"
-                  marketPriceChange={12}
-                  marketPrice={100}
-                  direction="down"
-                />
-                <SimpleStockRow
-                  ticker="DUCK"
-                  marketPriceChange={12}
-                  marketPrice={100}
-                  direction="down"
-                />
+                {owned_stocks?.stocks.map((detailed_share: any) => {
+                  return (
+                    <SimpleStockRow
+                      ticker={detailed_share.stock.name}
+                      stock_id={detailed_share.stock.id}
+                      marketPrice={detailed_share.stock.market_price}
+                    />
+                  );
+                })}
               </Flex>
             </Card>
           </Flex>
