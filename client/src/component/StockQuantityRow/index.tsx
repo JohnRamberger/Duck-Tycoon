@@ -24,7 +24,7 @@ export const StockQuantityRow: React.FC<StockQuantityRowProps> = ({
 }: StockQuantityRowProps) => {
   const userid = auth.currentUser?.uid;
 
-  const { data: update_stock_stats, isLoading: update_stock_stats_loading } =
+  const { data: update_stock_stats } =
     useQuery([userid, stock_id], async () => {
       const res = await fetch(
         `/api/user/${userid}/actions/update_stock_stats/stock/${stock_id}`,
