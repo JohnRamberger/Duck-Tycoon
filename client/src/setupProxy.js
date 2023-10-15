@@ -8,4 +8,11 @@ module.exports = function (app) {
       changeOrigin: true,
     })
   );
+  app.use(
+    '/exchange/api',
+    createProxyMiddleware({
+      target: 'https://duck-tycoon-api-p3mlfcmlha-ul.a.run.app',
+      changeOrigin: true,
+    })
+  );
 };

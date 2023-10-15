@@ -89,7 +89,7 @@ export const StockRow: React.FC<StockRowProps> = ({
           title="Ticker"
           valueStyle={{ fontWeight: 700 }}
         />
-        <Statistic value={marketPrice} title="Market Price" prefix={'$'} />
+        <Statistic value={marketPrice} title="Market Price" prefix={'$'} precision={2} />
         <Statistic value={sharesOwned} title="My Shares" />
         <Flex vertical>
           <Button

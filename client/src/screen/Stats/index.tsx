@@ -13,6 +13,8 @@ import globalstyles from '../../global.module.scss';
 import { useNavigate } from 'react-router-dom';
 
 import duck from '../../img/duckicon.png';
+import { auth } from '../../firebase';
+import { useQuery } from '@tanstack/react-query';
 
 export const StatsScreen = () => {
   const navigate = useNavigate();
@@ -44,6 +46,34 @@ export const StatsScreen = () => {
   ];
 
   const gap = '3em';
+
+  const userid = auth.currentUser?.uid;
+
+  const { data: owned_stocks, isLoading: owned_stocks_loading } = useQuery(
+    [userid, 'stocks'],
+    async () => {
+      const res = await fetch(`/api/user/${userid}/stocks`);
+      return res.json();
+    }
+  );
+
+  const { data: update_stats, isLoading: update_stats_loading } = useQuery(
+    [userid, 'update_stats'],
+    async () => {
+      const res = await fetch(`/api/user/${userid}/actions/update_stats`, {
+        method: 'POST',
+      });
+      return res.json();
+    }
+  );
+
+  const { data: all_stock_data, isLoading: all_stock_data_loading } = useQuery(
+    ['stock'],
+    async () => {
+      const res = await fetch(`/api/stock/`);
+      return res.json();
+    }
+  );
 
   return (
     <div

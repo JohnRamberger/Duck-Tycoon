@@ -86,7 +86,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const routeMutation = useMutation({
     mutationFn: ({ route, userid }: { route: number; userid: String }) =>
       fetch(`/api/user/${userid}/actions/choose_path/${route}`, {
-        method: 'PATCH',
+        method: 'POST',
       }),
   });
 
