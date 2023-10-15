@@ -1,5 +1,5 @@
 import globalstyles from '../../global.module.scss';
-import { Button, Form, Input, message } from 'antd';
+import { Button, Form, Input, message, Radio } from 'antd';
 import { useState } from 'react';
 import {
   createUserWithEmailAndPassword,
@@ -8,6 +8,8 @@ import {
 } from 'firebase/auth';
 
 import { auth } from '../../firebase';
+import { useMutation } from '@tanstack/react-query';
+import { Value } from 'sass';
 
 type FieldType = {
   username?: string;
@@ -15,9 +17,17 @@ type FieldType = {
   password?: string;
 };
 
-export const LoginScreen: React.FC = () => {
+interface LoginScreenProps {
+  onDone: () => void;
+}
+
+export const LoginScreen: React.FC<LoginScreenProps> = ({
+  onDone,
+}: LoginScreenProps) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [isLogin, setIsLogin] = useState(true);
+
+  const [choiceValue, setChoiceValue] = useState(0);
 
   const messageKey = 'key1';
 
@@ -48,6 +58,7 @@ export const LoginScreen: React.FC = () => {
           content: `Logged in!`,
           duration: 3,
         });
+        onDone();
       })
       .catch((error) => {
         messageApi.open({
@@ -58,6 +69,27 @@ export const LoginScreen: React.FC = () => {
         });
       });
   };
+
+  const registerMutation = useMutation({
+    mutationFn: ({ username, userid }: { username: string; userid: String }) =>
+      fetch('/api/user/', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          userid: userid,
+        }),
+      }),
+  });
+
+  const routeMutation = useMutation({
+    mutationFn: ({ route, userid }: { route: number; userid: String }) =>
+      fetch(`/api/user/${userid}/actions/choose_path/${route}`, {
+        method: 'PATCH',
+      }),
+  });
 
   const registerUser = (values: FieldType) => {
     createUserWithEmailAndPassword(auth, values.email!, values.password!)
@@ -73,13 +105,54 @@ export const LoginScreen: React.FC = () => {
         updateProfile(userCredential.user, {
           displayName: values.username,
         })
-          .then(() => {
+          .then(async () => {
             messageApi.open({
               key: messageKey,
-              type: 'success',
-              content: `Profile created!`,
-              duration: 3,
+              type: 'loading',
+              content: `Profile created! Creating ducks...`,
             });
+
+            const res = await registerMutation.mutateAsync({
+              username: values.username!,
+              userid: userCredential.user.uid,
+            });
+
+            if (!res.ok) {
+              messageApi.open({
+                key: messageKey,
+                type: 'error',
+                content: `Failed to create ducks: ${res.statusText}`,
+                duration: 10,
+              });
+            } else {
+              messageApi.open({
+                key: messageKey,
+                type: 'loading',
+                content: `Ducks created! Choosing route...`,
+              });
+              const res_route = await routeMutation.mutateAsync({
+                route: choiceValue,
+                userid: userCredential.user.uid,
+              });
+
+              if (!res_route.ok) {
+                messageApi.open({
+                  key: messageKey,
+                  type: 'error',
+                  content: `Failed to create route: ${res_route.statusText}`,
+                  duration: 10,
+                });
+              } else {
+                messageApi.open({
+                  key: messageKey,
+                  type: 'success',
+                  content: `Done!`,
+                  duration: 3,
+                });
+
+                onDone();
+              }
+            }
 
             // setTimeout(() => {
             //   // redirect back to home page
@@ -151,6 +224,33 @@ export const LoginScreen: React.FC = () => {
           >
             <Input.Password />
           </Form.Item>
+
+          {!isLogin && (
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <p>
+                Please choose a route. If you decide to go to school, you will
+                earn less money starting out, but more in the long run. If you
+                decide to go straight to work, you make more starting money, but
+                less over time.
+              </p>
+            </Form.Item>
+          )}
+
+          {!isLogin && (
+            <Form.Item label="Route">
+              <Radio.Group
+                options={[
+                  { label: 'School', value: 0 },
+                  { label: 'Work', value: 1 },
+                ]}
+                onChange={(value) => {
+                  setChoiceValue(value.target.value);
+                }}
+                value={choiceValue}
+                optionType="button"
+              />
+            </Form.Item>
+          )}
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit">

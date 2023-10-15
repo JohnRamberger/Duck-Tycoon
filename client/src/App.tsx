@@ -21,26 +21,33 @@ import { SchoolMinigame } from './screen/SchoolMinigame';
 import { WorkMinigame1 } from './screen/WorkMinigame1';
 import { ExchangeScreen } from './screen/Exchange';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
 const App = () => {
   const [messageApi, contextHolder] = message.useMessage();
   // check if user is logged in
   const [loggedIn, setLoggedIn] = useState<boolean | undefined>();
+  const [doneLoggingIn, setDoneLoggingIn] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (loggedIn === undefined && user) {
-        messageApi.open({
-          type: 'success',
-          content: 'Logged in!',
-          duration: 3,
-        });
+        // messageApi.open({
+        //   type: 'success',
+        //   content: 'Logged in!',
+        //   duration: 3,
+        // });
+        setDoneLoggingIn(true);
       }
       if (loggedIn && user == null) {
-        messageApi.open({
-          type: 'success',
-          content: 'Signed out!',
-          duration: 3,
-        });
+        // messageApi.open({
+        //   type: 'success',
+        //   content: 'Signed out!',
+        //   duration: 3,
+        // });
+        setDoneLoggingIn(false);
       }
       setLoggedIn(user != null);
     });
@@ -55,82 +62,90 @@ const App = () => {
         theme={{
           algorithm: theme.darkAlgorithm,
           token: {
-            colorPrimary: '#111',
+            colorPrimary: '#5c1c9c',
           },
         }}
       >
-        <Space>
-          <RouterProvider
-            router={createBrowserRouter([
-              {
-                path: '/',
-                element: (
-                  <>
-                    {contextHolder}
+        <QueryClientProvider client={queryClient}>
+          <Space>
+            <RouterProvider
+              router={createBrowserRouter([
+                {
+                  path: '/',
+                  element: (
+                    <>
+                      {contextHolder}
 
-                    {loggedIn === undefined && <IntroLoadScreen />}
-                    {loggedIn !== undefined && (
-                      <>
-                        {!loggedIn && <LoginScreen />}
-                        {loggedIn && <HomeScreen />}
-                      </>
-                    )}
-                  </>
-                ),
-              },
-              {
-                path: '/stats',
-                element: loggedIn ? (
-                  <StatsScreen />
-                ) : loggedIn !== undefined ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <IntroLoadScreen />
-                ),
-              },
-              {
-                path: '/main',
-                element: loggedIn ? (
-                  <MainScreen />
-                ) : loggedIn !== undefined ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <IntroLoadScreen />
-                ),
-              },
-              {
-                path: '/school',
-                element: loggedIn ? (
-                  <SchoolMinigame />
-                ) : loggedIn !== undefined ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <IntroLoadScreen />
-                ),
-              },
-              {
-                path: '/work',
-                element: loggedIn ? (
-                  <WorkMinigame1 />
-                ) : loggedIn !== undefined ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <IntroLoadScreen />
-                ),
-              },
-              {
-                path: '/exchange',
-                element: loggedIn ? (
-                  <ExchangeScreen />
-                ) : loggedIn !== undefined ? (
-                  <Navigate to="/" replace />
-                ) : (
-                  <IntroLoadScreen />
-                ),
-              },
-            ])}
-          />
-        </Space>
+                      {loggedIn === undefined && <IntroLoadScreen />}
+                      {loggedIn !== undefined && (
+                        <>
+                          {!doneLoggingIn && (
+                            <LoginScreen
+                              onDone={() => {
+                                setDoneLoggingIn(true);
+                              }}
+                            />
+                          )}
+                          {loggedIn && doneLoggingIn && <HomeScreen />}
+                        </>
+                      )}
+                    </>
+                  ),
+                },
+                {
+                  path: '/stats',
+                  element: loggedIn ? (
+                    <StatsScreen />
+                  ) : loggedIn !== undefined ? (
+                    <Navigate to="/" replace />
+                  ) : (
+                    <IntroLoadScreen />
+                  ),
+                },
+                {
+                  path: '/main',
+                  element: loggedIn ? (
+                    <MainScreen />
+                  ) : loggedIn !== undefined ? (
+                    <Navigate to="/" replace />
+                  ) : (
+                    <IntroLoadScreen />
+                  ),
+                },
+                {
+                  path: '/school',
+                  element: loggedIn ? (
+                    <SchoolMinigame />
+                  ) : loggedIn !== undefined ? (
+                    <Navigate to="/" replace />
+                  ) : (
+                    <IntroLoadScreen />
+                  ),
+                },
+                {
+                  path: '/work',
+                  element: loggedIn ? (
+                    <WorkMinigame1 />
+                  ) : loggedIn !== undefined ? (
+                    <Navigate to="/" replace />
+                  ) : (
+                    <IntroLoadScreen />
+                  ),
+                },
+                {
+                  path: '/exchange',
+                  element: loggedIn ? (
+                    <ExchangeScreen />
+                  ) : loggedIn !== undefined ? (
+                    <Navigate to="/" replace />
+                  ) : (
+                    <IntroLoadScreen />
+                  ),
+                },
+              ])}
+            />
+          </Space>
+        </QueryClientProvider>
       </ConfigProvider>
     </div>
   );
