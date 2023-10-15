@@ -19,6 +19,7 @@ import { StatsScreen } from './screen/Stats';
 import { MainScreen } from './screen/Main';
 import { SchoolMinigame } from './screen/SchoolMinigame';
 import { WorkMinigame1 } from './screen/WorkMinigame1';
+import { ExchangeScreen } from './screen/Exchange';
 
 const App = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -111,6 +112,16 @@ const App = () => {
                 path: '/work',
                 element: loggedIn ? (
                   <WorkMinigame1 />
+                ) : loggedIn !== undefined ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <IntroLoadScreen />
+                ),
+              },
+              {
+                path: '/exchange',
+                element: loggedIn ? (
+                  <ExchangeScreen />
                 ) : loggedIn !== undefined ? (
                   <Navigate to="/" replace />
                 ) : (

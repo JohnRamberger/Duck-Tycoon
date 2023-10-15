@@ -21,7 +21,11 @@ export const SimpleStockRow: React.FC<StockRowProps> = ({
       justify="space-between"
       align="center"
     >
-      <Statistic value={ticker} title="Ticker" />
+      <Statistic
+        value={ticker}
+        title="Ticker"
+        valueStyle={{ fontWeight: 700 }}
+      />
       <Statistic
         value={marketPrice}
         title="Market Price"
