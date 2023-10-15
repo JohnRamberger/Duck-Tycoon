@@ -1,4 +1,4 @@
-import { Flex, Card } from 'antd';
+import { Flex } from 'antd';
 
 import duck from '../../img/duckicon.png';
 
