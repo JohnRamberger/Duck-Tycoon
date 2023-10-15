@@ -62,7 +62,7 @@ def fetch_bank_account_of_user(userid: str):
 
 
 @users_route_blueprint.route(
-    "/<userid>/actions/choose_path/<path_num>", methods=["PATCH"]
+    "/<userid>/actions/choose_path/<path_num>", methods=["POST"]
 )
 def run_choose_path(userid: str, path_num: int):
     path_num = int(path_num)
@@ -73,7 +73,7 @@ def run_choose_path(userid: str, path_num: int):
 
 
 @users_route_blueprint.route(
-    "/<userid>/actions/transfer_checking_to_savings/<amount>", methods=["PATCH"]
+    "/<userid>/actions/transfer_checking_to_savings/<amount>", methods=["POST"]
 )
 def run_transfer_checking_to_savings(userid: str, amount: Decimal):
     try:
@@ -87,7 +87,7 @@ def run_transfer_checking_to_savings(userid: str, amount: Decimal):
 
 
 @users_route_blueprint.route(
-    "/<userid>/actions/transfer_savings_to_checking/<amount>", methods=["PATCH"]
+    "/<userid>/actions/transfer_savings_to_checking/<amount>", methods=["POST"]
 )
 def run_transfer_savings_to_checking(userid: str, amount: Decimal):
     try:
@@ -101,7 +101,7 @@ def run_transfer_savings_to_checking(userid: str, amount: Decimal):
 
 
 @users_route_blueprint.route(
-    "/<userid>/actions/buy_stocks/stock/<stockid>/<share_amount>", methods=["PATCH"]
+    "/<userid>/actions/buy_stocks/stock/<stockid>/<share_amount>", methods=["POST"]
 )
 def run_buy_stocks(userid: str, stockid: str, share_amount: int):
     try:
@@ -115,7 +115,7 @@ def run_buy_stocks(userid: str, stockid: str, share_amount: int):
 
 
 @users_route_blueprint.route(
-    "/<userid>/actions/sell_stocks/stock/<stockid>/<share_amount>", methods=["PATCH"]
+    "/<userid>/actions/sell_stocks/stock/<stockid>/<share_amount>", methods=["POST"]
 )
 def run_sell_stocks(userid: str, stockid: str, share_amount: int):
     try:
@@ -128,7 +128,7 @@ def run_sell_stocks(userid: str, stockid: str, share_amount: int):
     return {}, 200
 
 
-@users_route_blueprint.route("/<userid>/actions/work/", methods=["PATCH"])
+@users_route_blueprint.route("/<userid>/actions/work/", methods=["POST"])
 def run_work(userid: str):
     try:
         work(userid)
@@ -138,7 +138,7 @@ def run_work(userid: str):
     return {}, 200
 
 
-@users_route_blueprint.route("/<userid>/actions/study/", methods=["PATCH"])
+@users_route_blueprint.route("/<userid>/actions/study/", methods=["POST"])
 def run_study(userid: str):
     try:
         study(userid)
@@ -148,7 +148,7 @@ def run_study(userid: str):
     return {}, 200
 
 
-@users_route_blueprint.route("/<userid>/actions/update_stats/", methods=["PATCH"])
+@users_route_blueprint.route("/<userid>/actions/update_stats/", methods=["POST"])
 def run_update_stats(userid: str):
     try:
         stats = update_stats(userid)
@@ -160,7 +160,7 @@ def run_update_stats(userid: str):
 
 
 @users_route_blueprint.route(
-    "/<userid>/actions/update_stock_stats/stock/<stockid>", methods=["PATCH"]
+    "/<userid>/actions/update_stock_stats/stock/<stockid>", methods=["POST"]
 )
 def run_update_stock_stats(userid: str, stockid: str):
     try:
@@ -171,7 +171,7 @@ def run_update_stock_stats(userid: str, stockid: str):
         return jsonify({"error": "Something went wrong"}), 400
 
 
-@users_route_blueprint.route("/<userid>/actions/played_game/", methods=["PATCH"])
+@users_route_blueprint.route("/<userid>/actions/played_game/", methods=["POST"])
 def run_played_game(userid: str):
     try:
         played_game(userid)
