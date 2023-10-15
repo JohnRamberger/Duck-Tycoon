@@ -21,7 +21,9 @@ export const StatsScreen = () => {
   const ref2 = useRef(null);
   const ref3 = useRef(null);
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(
+    localStorage.getItem('tour-stats') !== 'false'
+  );
 
   const steps: TourProps['steps'] = [
     {
@@ -129,7 +131,14 @@ export const StatsScreen = () => {
         </Flex>
       </Flex>
 
-      <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
+      <Tour
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          localStorage.setItem('tour-stats', 'false');
+        }}
+        steps={steps}
+      />
     </div>
   );
 };
