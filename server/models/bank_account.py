@@ -9,3 +9,4 @@ class BankAccount:
     savings_amt: Decimal
     amt_chk_LA: Decimal
     amt_sav_LA: Decimal
+    games_played: int
