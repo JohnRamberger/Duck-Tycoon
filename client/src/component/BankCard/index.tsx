@@ -17,8 +17,17 @@ export const BankCard: React.FC<BankCardProps> = ({
   savings,
 }: BankCardProps) => {
   return (
-    <Card style={{ width: '60vw' }}>
-      <Flex style={{ width: '100%' }} gap={'1em'} align="center" vertical>
+    <Card
+      style={{ width: '100%', height: '100%' }}
+      bodyStyle={{ height: '100%' }}
+    >
+      <Flex
+        style={{ width: '100%', height: '100%' }}
+        gap={'1em'}
+        justify="space-evenly"
+        align="center"
+        vertical
+      >
         <BankRow
           title="Checking"
           value={checking.value}

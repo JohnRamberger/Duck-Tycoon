@@ -1,0 +1,31 @@
+.Button {
+  all: unset;
+  background-color: rgba($color: #000000, $alpha: 0.3);
+  border-radius: 2em;
+  overflow: hidden;
+  padding: 1em;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+
+  user-select: none;
+
+  cursor: pointer;
+  &:hover {
+    filter: brightness(0.8);
+  }
+
+  img {
+    border-radius: 1.5em;
+  }
+}
+
+.Disabled {
+  cursor: not-allowed;
+  filter: invert(0.2);
+  &:hover {
+    filter: invert(0.2);
+  }
+}
