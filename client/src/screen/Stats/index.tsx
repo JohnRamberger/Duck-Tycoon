@@ -13,6 +13,8 @@ import globalstyles from '../../global.module.scss';
 import { useNavigate } from 'react-router-dom';
 
 import duck from '../../img/duckicon.png';
+import { auth } from '../../firebase';
+import { useQuery } from '@tanstack/react-query';
 
 import exchange from '../../img/exchange.png';
 import bank from '../../img/bank.png';
@@ -50,6 +52,44 @@ export const StatsScreen = () => {
 
   const gap = '3em';
 
+  const userid = auth.currentUser?.uid;
+
+  const { data: owned_stocks } = useQuery(
+    [userid, 'stocks'],
+    async () => {
+      const res = await fetch(`/api/user/${userid}/stocks`);
+      return res.json();
+    }
+  );
+
+  const { data: update_stats } = useQuery(
+    [userid, 'update_stats'],
+    async () => {
+      const res = await fetch(`/api/user/${userid}/actions/update_stats`, {
+        method: 'POST',
+      });
+      return res.json();
+    }
+  );
+
+  const { data: all_stock_data } = useQuery(
+    ['stock'],
+    async () => {
+      const res = await fetch(`/api/stock/`);
+      return res.json();
+    }
+  );
+  console.log(owned_stocks, update_stats, all_stock_data);
+
+  const checking_change =
+    update_stats?.p_new_checking - update_stats?.p_old_checking;
+  const saving_change = update_stats?.p_new_saving - update_stats?.p_old_saving;
+  const net_worth_change =
+    update_stats?.p_new_net_worth - update_stats?.p_old_net_worth;
+  const checking_direction = checking_change >= 0 ? 'up' : 'down';
+  const saving_direction = saving_change >= 0 ? 'up' : 'down';
+  const net_worth_direction = net_worth_change >= 0 ? 'up' : 'down';
+
   return (
     <div
       style={{
@@ -72,7 +112,11 @@ export const StatsScreen = () => {
         />
         <h1 className={globalstyles.Subtitle}>Here's how you're doing!</h1>
         <div ref={ref1} style={{ width: '100%' }}>
-          <NetWorthCard avatar={duck} value={100_000} direction={'up'} />
+          <NetWorthCard
+            avatar={duck}
+            value={update_stats?.p_new_net_worth}
+            direction={net_worth_direction}
+          />
         </div>
         <Flex style={{ width: '100%' }} gap={gap}>
           <Flex
@@ -91,8 +135,14 @@ export const StatsScreen = () => {
               style={{ width: '100%', height: '100%', alignSelf: 'stretch' }}
             >
               <BankCard
-                checking={{ value: 12, direction: 'down' }}
-                savings={{ value: 123456, direction: 'up' }}
+                checking={{
+                  value: update_stats?.p_new_checking,
+                  direction: checking_direction,
+                }}
+                savings={{
+                  value: update_stats?.p_new_savings,
+                  direction: saving_direction,
+                }}
               />
             </div>
           </Flex>
@@ -110,24 +160,15 @@ export const StatsScreen = () => {
             />
             <Card style={{ width: '100%' }}>
               <Flex vertical gap="1em">
-                <SimpleStockRow
-                  ticker="DUCK"
-                  marketPriceChange={12}
-                  marketPrice={100}
-                  direction="down"
-                />
-                <SimpleStockRow
-                  ticker="DUCK"
-                  marketPriceChange={12}
-                  marketPrice={100}
-                  direction="down"
-                />
-                <SimpleStockRow
-                  ticker="DUCK"
-                  marketPriceChange={12}
-                  marketPrice={100}
-                  direction="down"
-                />
+                {owned_stocks?.stocks.map((detailed_share: any) => {
+                  return (
+                    <SimpleStockRow
+                      ticker={detailed_share.stock.name}
+                      stock_id={detailed_share.stock.id}
+                      marketPrice={detailed_share.stock.market_price}
+                    />
+                  );
+                })}
               </Flex>
             </Card>
           </Flex>

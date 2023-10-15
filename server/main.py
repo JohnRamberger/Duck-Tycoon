@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, Flask
 from routes.users_router import users_route_blueprint
 from routes.stocks_router import stocks_route_blueprint
+from flask_cors import CORS
 
 if os.environ.get("ENV") == "production":
     from dotenv import load_dotenv
@@ -9,6 +10,7 @@ if os.environ.get("ENV") == "production":
     load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 root_blueprint = Blueprint("API root", import_name=__name__, url_prefix="/api")
 
 root_blueprint.register_blueprint(users_route_blueprint)

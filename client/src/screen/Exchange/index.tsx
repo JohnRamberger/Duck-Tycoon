@@ -4,9 +4,40 @@ import globalstyles from '../../global.module.scss';
 import { StockQuantityRow } from '../../component/StockQuantityRow';
 import { StockRow } from '../../component/StockRow';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase';
+import { useQuery } from '@tanstack/react-query';
 
 export const ExchangeScreen: React.FC = () => {
   const nav = useNavigate();
+  const userid = auth.currentUser?.uid;
+
+  const { data: owned_stocks } = useQuery(
+    [userid, 'stocks'],
+    async () => {
+      const res = await fetch(`/api/user/${userid}/stocks`);
+      return res.json();
+    }
+  );
+
+  const { data: update_stats } = useQuery(
+    [userid, 'update_stats'],
+    async () => {
+      const res = await fetch(`/api/user/${userid}/actions/update_stats`, {
+        method: 'POST',
+      });
+      return res.json();
+    }
+  );
+
+  const { data: all_stock_data } = useQuery(
+    ['stock'],
+    async () => {
+      const res = await fetch(`/api/stock/`);
+      return res.json();
+    }
+  );
+  
+
   return (
     <div className={globalstyles.Center}>
       <Card
@@ -28,7 +59,7 @@ export const ExchangeScreen: React.FC = () => {
             <h1 style={{ lineHeight: '1em' }}>Portfolio</h1>
             <Statistic
               title="Total Value"
-              value={10_000}
+              value={update_stats?.p_new_net_worth}
               prefix="$"
               style={{ paddingRight: '2em' }}
             />
@@ -41,55 +72,23 @@ export const ExchangeScreen: React.FC = () => {
               }}
               gap={'2px'}
             >
-              <StockQuantityRow
-                ticker="DUCK"
-                direction="up"
-                marketPrice={100}
-                shareQuantity={3}
-              />
-              <StockQuantityRow
-                ticker="GOOSE"
-                direction="down"
-                marketPrice={12}
-                shareQuantity={1}
-              />
-              <StockQuantityRow
-                ticker="GOOSE"
-                direction="down"
-                marketPrice={12}
-                shareQuantity={1}
-              />
-              <StockQuantityRow
-                ticker="GOOSE"
-                direction="down"
-                marketPrice={12}
-                shareQuantity={1}
-              />
-              <StockQuantityRow
-                ticker="GOOSE"
-                direction="down"
-                marketPrice={12}
-                shareQuantity={1}
-              />
-              <StockQuantityRow
-                ticker="GOOSE"
-                direction="down"
-                marketPrice={12}
-                shareQuantity={1}
-              />
-              <StockQuantityRow
-                ticker="GOOSE"
-                direction="down"
-                marketPrice={12}
-                shareQuantity={1}
-              />
+              {owned_stocks?.stocks.map((owned_stock: any) => {
+                return (
+                  <StockQuantityRow
+                    ticker={owned_stock.stock.name}
+                    stock_id={owned_stock.stockid}
+                    marketPrice={owned_stock.stock.market_price}
+                    shareQuantity={owned_stock.num_shares_owned}
+                  />
+                );
+              })}
             </Flex>
           </Flex>
           <Flex vertical gap={'2em'}>
             <h1 style={{ lineHeight: '1em' }}>Options</h1>
             <Statistic
               title="Buying Power"
-              value={500}
+              value={update_stats?.p_new_checking}
               prefix="$"
               style={{ paddingRight: '2em' }}
             />
@@ -103,18 +102,27 @@ export const ExchangeScreen: React.FC = () => {
               }}
               gap={'1em'}
             >
+              {all_stock_data?.stocks.map((stock: any) => {
+                return (
+                  <StockRow
+                    ticker={stock.name}
+                    marketPrice={stock.market_price}
+                    buyingPower={update_stats?.p_new_checking}
+                    sharesOwned={
+                      owned_stocks?.stocks.find(
+                        (share: any) => share.stockid === stock.id
+                      )?.num_shares_owned ?? 0
+                    }
+                    stockId={stock.id}
+                  />
+                );
+              })}
+
               <StockRow
                 ticker="DUCK"
                 marketPrice={100}
-                buyingPower={500}
-                sharesOwned={20}
+                buyingPower={update_stats?.p_new_checking}
               />
-              <StockRow ticker="DUCK" marketPrice={100} buyingPower={500} />
-              <StockRow ticker="DUCK" marketPrice={100} buyingPower={500} />
-              <StockRow ticker="DUCK" marketPrice={100} buyingPower={500} />
-              <StockRow ticker="DUCK" marketPrice={100} buyingPower={500} />
-              <StockRow ticker="DUCK" marketPrice={100} buyingPower={500} />
-              <StockRow ticker="DUCK" marketPrice={101} buyingPower={500} />
             </Flex>
           </Flex>
         </Flex>
