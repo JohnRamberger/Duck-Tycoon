@@ -1,61 +1,100 @@
-import { Button, Flex, Statistic, Modal } from 'antd';
-import { CaretUpOutlined, CaretDownOutlined } from '@ant-design/icons';
+import { Button, Flex, Statistic, Modal, InputNumber } from 'antd';
 import { useState } from 'react';
 
 interface StockRowProps {
   ticker: string;
-  sharesOwned: number;
+  sharesOwned?: number;
   marketPrice: number;
-  marketPriceChange: number;
-  direction: 'up' | 'down';
+  buyingPower: number;
 }
 
 export const StockRow: React.FC<StockRowProps> = ({
   ticker,
+  sharesOwned = 0,
   marketPrice,
-  marketPriceChange,
-  direction,
+  buyingPower,
 }: StockRowProps) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [action, setAction] = useState<'buy' | 'sell'>('buy');
+  const [actionValue, setActionValue] = useState(0);
 
   return (
     <>
       <Modal
-        title="Title"
+        title={`${action === 'buy' ? 'Buy' : 'Sell'} Shares of ${ticker}`}
         open={modalOpen}
         onCancel={() => {
           setModalOpen(false);
         }}
       >
-        <p>modal something something</p>
+        {action === 'buy' && (
+          <>
+            <Flex align="center" justify={'space-between'} gap={'2em'}>
+              <h3>{`Total cost: $${actionValue * marketPrice}`}</h3>
+              <InputNumber
+                addonBefore="Shares"
+                min={1}
+                defaultValue={actionValue}
+                max={Math.floor(buyingPower / marketPrice)}
+                onChange={(value) => {
+                  setActionValue(value ?? 0);
+                }}
+              />
+            </Flex>
+            <p
+              style={{
+                textAlign: 'right',
+                lineHeight: '0',
+                transform: 'translateY(-1em)',
+              }}
+            >
+              ${marketPrice} per share
+            </p>
+          </>
+        )}
+        {action === 'sell' && (
+          <>
+            <Flex align="center" justify={'space-between'} gap={'2em'}>
+              <h3>{`Total earnings: $${actionValue * marketPrice}`}</h3>
+              <InputNumber
+                addonBefore="Shares"
+                min={1}
+                defaultValue={actionValue}
+                max={sharesOwned}
+                onChange={(value) => {
+                  setActionValue(value ?? 0);
+                }}
+              />
+            </Flex>
+            <p
+              style={{
+                textAlign: 'right',
+                lineHeight: '0',
+                transform: 'translateY(-1em)',
+              }}
+            >
+              ${marketPrice} per share
+            </p>
+          </>
+        )}
       </Modal>
       <Flex
         style={{ width: '100%' }}
-        gap={'1em'}
+        gap={'4vw'}
         justify="space-between"
         align="center"
       >
-        {direction === 'up' ? (
-          <CaretUpOutlined style={{ fontSize: '2em', color: 'green' }} />
-        ) : (
-          <CaretDownOutlined style={{ fontSize: '2em', color: 'red' }} />
-        )}
-        <Statistic value={ticker} title="Ticker" />
         <Statistic
-          value={marketPrice}
-          title="Market Price"
-          prefix={'$'}
-          suffix={'/ Share'}
+          value={ticker}
+          title="Ticker"
+          valueStyle={{ fontWeight: 700 }}
         />
-        <Statistic
-          value={(100 * marketPriceChange) / marketPrice}
-          title="% Change"
-          precision={1}
-          suffix={`%`}
-        />
+        <Statistic value={marketPrice} title="Market Price" prefix={'$'} />
+        <Statistic value={sharesOwned} title="My Shares" />
         <Flex vertical>
           <Button
             onClick={() => {
+              setAction('buy');
               setModalOpen(true);
             }}
           >
@@ -63,8 +102,10 @@ export const StockRow: React.FC<StockRowProps> = ({
           </Button>
           <Button
             onClick={() => {
+              setAction('sell');
               setModalOpen(true);
             }}
+            disabled={sharesOwned <= 0}
           >
             Sell
           </Button>
