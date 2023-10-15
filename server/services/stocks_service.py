@@ -13,6 +13,7 @@ def get_stocks() -> List[Stock]:
             )
 
             sql_rows = cursor.fetchall()
+
             stocks_list = [
                 Stock(
                     id=id,
