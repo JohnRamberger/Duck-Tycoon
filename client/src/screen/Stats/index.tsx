@@ -14,6 +14,9 @@ import { useNavigate } from 'react-router-dom';
 
 import duck from '../../img/duckicon.png';
 
+import exchange from '../../img/exchange.png';
+import bank from '../../img/bank.png';
+
 export const StatsScreen = () => {
   const navigate = useNavigate();
 
@@ -81,8 +84,8 @@ export const StatsScreen = () => {
           >
             <img
               className={styles.ImageHeader}
-              src={duck}
-              alt="Owned Stocks Icon"
+              src={bank}
+              alt="Banks Icon"
             />
             <div
               style={{ width: '100%', height: '100%', alignSelf: 'stretch' }}
@@ -102,7 +105,7 @@ export const StatsScreen = () => {
           >
             <img
               className={styles.ImageHeader}
-              src={duck}
+              src={exchange}
               alt="Owned Stocks Icon"
             />
             <Card style={{ width: '100%' }}>

@@ -4,14 +4,36 @@ import styles from './styles.module.scss';
 
 import { useNavigate } from 'react-router-dom';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SchoolQuestion } from '../../component/SchoolQuestion';
 import { WORK_QUESTIONS1 } from '../../data/questions';
 import { useMutation } from '@tanstack/react-query';
 
 import { auth } from '../../firebase';
 
+import bee1 from '../../img/bee1-removebg-preview.png';
+import bee2 from '../../img/bee2-removebg-preview.png';
+
+import duck1 from '../../img/duckanimate1-removebg-preview.png';
+import duck2 from '../../img/duckanimate2-removebg-preview.png';
+
 export const WorkMinigame1: React.FC = () => {
+  // animate
+
+  const [duckImage, setDuckImage] = useState(false);
+
+  useEffect(() => {
+    const x = setInterval(() => {
+      setDuckImage((prev) => !prev);
+    }, 500);
+    return () => {
+      clearInterval(x);
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  // data
+
   const nav = useNavigate();
   const [screen, setScreen] = useState<'start' | 'question' | 'result' | 'end'>(
     'start'
@@ -39,6 +61,7 @@ export const WorkMinigame1: React.FC = () => {
   });
 
   const handleNext = () => {
+    setCurrent(current + 1);
     if (current === 4) {
       if (correct - 1 - current > -3) {
         // win
@@ -63,13 +86,24 @@ export const WorkMinigame1: React.FC = () => {
       return;
     }
 
-    setCurrent(current + 1);
     setScreen('question');
   };
 
   return (
     <>
-      <div className={styles.AnimFrame}></div>
+      <div className={styles.AnimFrame}>
+        <img
+          src={duckImage ? bee1 : bee2}
+          alt="duck"
+          className={styles.AnimBee}
+          style={{ transform: `translateX(${(Math.max(current - correct, 0)) * 28}vw)` }}
+        />
+        <img
+          src={duckImage ? duck1 : duck2}
+          alt="duck"
+          className={styles.AnimDuck}
+        />
+      </div>
       <div className={globalstyles.Center} style={{ height: '80vh' }}>
         {screen === 'start' && (
           <Card title="Before you begin!" style={{ maxWidth: '40vmax' }}>
@@ -144,7 +178,7 @@ export const WorkMinigame1: React.FC = () => {
         {screen === 'end' && (
           <Card
             title={
-              correct - 1 - current > -3 ? 'You escaped!' : 'The bee got you...'
+              correct - current > -3 ? 'You escaped!' : 'The bee got you...'
             }
             style={{ maxWidth: '40vmax', fontSize: '1.5em' }}
             headStyle={{ fontSize: '1em' }}
