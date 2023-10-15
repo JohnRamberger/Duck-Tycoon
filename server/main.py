@@ -13,6 +13,7 @@ root_blueprint = Blueprint("API root", import_name=__name__, url_prefix="/api")
 
 root_blueprint.register_blueprint(users_route_blueprint)
 root_blueprint.register_blueprint(stocks_route_blueprint)
+
 app.register_blueprint(root_blueprint)
 
 if __name__ == "__main__":
