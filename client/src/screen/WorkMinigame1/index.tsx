@@ -9,7 +9,7 @@ import { SchoolQuestion } from '../../component/SchoolQuestion';
 import { WORK_QUESTIONS1 } from '../../data/questions';
 import { useMutation } from '@tanstack/react-query';
 
-import { auth } from '../../firebase';
+import { work } from '../../api';
 
 import bee1 from '../../img/bee1-removebg-preview.png';
 import bee2 from '../../img/bee2-removebg-preview.png';
@@ -53,12 +53,7 @@ export const WorkMinigame1: React.FC = () => {
   const [correct, setCorrect] = useState(0);
   const [current, setCurrent] = useState(0);
 
-  const winMutation = useMutation({
-    mutationFn: ({ userid }: { userid: String }) =>
-      fetch(`/api/user/${userid}/actions/work`, {
-        method: 'POST',
-      }),
-  });
+  const winMutation = useMutation({ mutationFn: work });
 
   const handleNext = () => {
     setCurrent(current + 1);
@@ -66,14 +61,11 @@ export const WorkMinigame1: React.FC = () => {
       if (correct - 1 - current > -3) {
         // win
         setLoading(true);
-        winMutation.mutate(
-          { userid: auth.currentUser?.uid! },
-          {
-            onSuccess: () => {
-              setLoading(false);
-            },
-          }
-        );
+        winMutation.mutate(undefined, {
+          onSettled: () => {
+            setLoading(false);
+          },
+        });
       }
 
       // done

@@ -1,16 +1,10 @@
 import { Flex, Statistic } from 'antd';
 import { CaretUpOutlined, CaretDownOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import { auth } from '../../firebase';
+import { updateStockStats } from '../../api';
 
-/*interface StockQuantityRowProps {
-  ticker: string;
-  marketPrice: number;
-  shareQuantity: number;
-  direction: 'up' | 'down';
-}*/
 interface StockQuantityRowProps {
-  stock_id: string;
+  stock_id: number;
   ticker: string;
   marketPrice: number;
   shareQuantity: number;
@@ -22,20 +16,13 @@ export const StockQuantityRow: React.FC<StockQuantityRowProps> = ({
   marketPrice,
   shareQuantity,
 }: StockQuantityRowProps) => {
-  const userid = auth.currentUser?.uid;
-
-  const { data: update_stock_stats } =
-    useQuery([userid, stock_id], async () => {
-      const res = await fetch(
-        `/api/user/${userid}/actions/update_stock_stats/stock/${stock_id}`,
-        {
-          method: 'POST',
-        }
-      );
-      return res.json();
-    });
+  const { data: update_stock_stats } = useQuery(
+    ['stock_stats', stock_id],
+    () => updateStockStats(stock_id)
+  );
   const change =
-    update_stock_stats?.p_new_value - update_stock_stats?.p_old_value;
+    (update_stock_stats?.p_new_value ?? 0) -
+    (update_stock_stats?.p_old_value ?? 0);
   const direction = change >= 0 ? 'up' : 'down';
   
   return (

@@ -14,8 +14,8 @@ import { MainButton } from '../../component/MainButton';
 import { ProfileCard } from '../../component/ProfileCard';
 import { useRef, useState } from 'react';
 
-import { auth } from '../../firebase';
 import { useQuery } from '@tanstack/react-query';
+import { getUser } from '../../api';
 
 export const MainScreen: React.FC = () => {
   const nav = useNavigate();
@@ -30,13 +30,7 @@ export const MainScreen: React.FC = () => {
   const ref4 = useRef(null);
   const ref5 = useRef(null);
 
-  const userQuery = useQuery({
-    queryKey: ['asd'],
-    queryFn: async () => {
-      const x = await fetch(`/api/user/${auth.currentUser?.uid!}`);
-      return x.json();
-    },
-  });
+  const userQuery = useQuery(['user'], getUser);
 
   const steps: TourProps['steps'] = [
     {
@@ -98,7 +92,7 @@ export const MainScreen: React.FC = () => {
               onClick={() => {
                 nav('/school');
               }}
-              disabled={userQuery?.data?.days_school_left <= 0 ?? true}
+              disabled={(userQuery.data?.days_school_left ?? 0) <= 0}
               disabledMessage="You are not enrolled in school."
             />
           </div>
@@ -144,8 +138,8 @@ export const MainScreen: React.FC = () => {
       </Flex>
 
       <ProfileCard
-        salary={userQuery?.data?.salary ?? 0}
-        username={auth.currentUser?.displayName!}
+        salary={userQuery.data?.salary ?? 0}
+        username={userQuery.data?.username ?? ''}
       />
 
       <Tour

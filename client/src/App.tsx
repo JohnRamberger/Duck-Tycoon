@@ -1,14 +1,13 @@
 import './App.css';
 
 import { useState, useEffect } from 'react';
-import { ConfigProvider, Space, theme, message } from 'antd';
+import { ConfigProvider, Space, theme } from 'antd';
 
 import { HomeScreen } from './screen/Home';
 import { IntroLoadScreen } from './screen/IntroLoad';
 import { LoginScreen } from './screen/Login';
 
-import { auth } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { supabase } from './supabase';
 
 import {
   createBrowserRouter,
@@ -20,41 +19,45 @@ import { MainScreen } from './screen/Main';
 import { SchoolMinigame } from './screen/SchoolMinigame';
 import { WorkMinigame1 } from './screen/WorkMinigame1';
 import { ExchangeScreen } from './screen/Exchange';
+import { BankScreen } from './screen/Bank';
+import { LeaderboardScreen } from './screen/Leaderboard';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [messageApi, contextHolder] = message.useMessage();
-  // check if user is logged in
+  // undefined = still checking session, true/false = known
   const [loggedIn, setLoggedIn] = useState<boolean | undefined>();
   const [doneLoggingIn, setDoneLoggingIn] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (loggedIn === undefined && user) {
-        // messageApi.open({
-        //   type: 'success',
-        //   content: 'Logged in!',
-        //   duration: 3,
-        // });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION' && session) {
+        // Returning user with a stored session: skip the login screen.
         setDoneLoggingIn(true);
       }
-      if (loggedIn && user == null) {
-        // messageApi.open({
-        //   type: 'success',
-        //   content: 'Signed out!',
-        //   duration: 3,
-        // });
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear();
         setDoneLoggingIn(false);
       }
-      setLoggedIn(user != null);
+      setLoggedIn(session != null);
     });
     return () => {
-      unsub();
+      subscription.unsubscribe();
     };
-  }, [messageApi, loggedIn]);
+  }, []);
+
+  const guarded = (element: JSX.Element) =>
+    loggedIn ? (
+      element
+    ) : loggedIn !== undefined ? (
+      <Navigate to="/" replace />
+    ) : (
+      <IntroLoadScreen />
+    );
 
   return (
     <div className="App">
@@ -74,8 +77,6 @@ const App = () => {
                   path: '/',
                   element: (
                     <>
-                      {contextHolder}
-
                       {loggedIn === undefined && <IntroLoadScreen />}
                       {loggedIn !== undefined && (
                         <>
@@ -92,56 +93,13 @@ const App = () => {
                     </>
                   ),
                 },
-                {
-                  path: '/stats',
-                  element: loggedIn ? (
-                    <StatsScreen />
-                  ) : loggedIn !== undefined ? (
-                    <Navigate to="/" replace />
-                  ) : (
-                    <IntroLoadScreen />
-                  ),
-                },
-                {
-                  path: '/main',
-                  element: loggedIn ? (
-                    <MainScreen />
-                  ) : loggedIn !== undefined ? (
-                    <Navigate to="/" replace />
-                  ) : (
-                    <IntroLoadScreen />
-                  ),
-                },
-                {
-                  path: '/school',
-                  element: loggedIn ? (
-                    <SchoolMinigame />
-                  ) : loggedIn !== undefined ? (
-                    <Navigate to="/" replace />
-                  ) : (
-                    <IntroLoadScreen />
-                  ),
-                },
-                {
-                  path: '/work',
-                  element: loggedIn ? (
-                    <WorkMinigame1 />
-                  ) : loggedIn !== undefined ? (
-                    <Navigate to="/" replace />
-                  ) : (
-                    <IntroLoadScreen />
-                  ),
-                },
-                {
-                  path: '/exchange',
-                  element: loggedIn ? (
-                    <ExchangeScreen />
-                  ) : loggedIn !== undefined ? (
-                    <Navigate to="/" replace />
-                  ) : (
-                    <IntroLoadScreen />
-                  ),
-                },
+                { path: '/stats', element: guarded(<StatsScreen />) },
+                { path: '/main', element: guarded(<MainScreen />) },
+                { path: '/school', element: guarded(<SchoolMinigame />) },
+                { path: '/work', element: guarded(<WorkMinigame1 />) },
+                { path: '/exchange', element: guarded(<ExchangeScreen />) },
+                { path: '/bank', element: guarded(<BankScreen />) },
+                { path: '/leaderboard', element: guarded(<LeaderboardScreen />) },
               ])}
             />
           </Space>

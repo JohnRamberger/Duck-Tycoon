@@ -2,3 +2,7 @@
   height: 100vh;
   width: 100vw;
 }
+
+.leaderboard-me > td {
+  background: rgba(92, 28, 156, 0.35) !important;
+}

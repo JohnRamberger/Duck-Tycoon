@@ -1,12 +1,13 @@
 import globalstyles from '../../global.module.scss';
 import styles from './styles.module.scss';
 
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { supabase } from '../../supabase';
+import { getUser } from '../../api';
 
 import { Flex, Button, Popconfirm } from 'antd';
 
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 const welcomeMessage = (username: string) => {
   let options = [`Welcome back, ${username}!`, `Hello, ${username}!`, 'Quack!'];
@@ -16,9 +17,10 @@ const welcomeMessage = (username: string) => {
 
 export const HomeScreen: React.FC = () => {
   const nav = useNavigate();
+  const { data: user } = useQuery(['user'], getUser);
 
   const confirm = () => {
-    signOut(auth);
+    supabase.auth.signOut();
   };
 
   const enter = () => {
@@ -42,7 +44,7 @@ export const HomeScreen: React.FC = () => {
 
       <Flex vertical gap={'4em'}>
         <h1 className={globalstyles.Title}>Duck Tycoon</h1>
-        <h3 className={globalstyles.Subtitle}>{welcomeMessage('John')}</h3>
+        <h3 className={globalstyles.Subtitle}>{welcomeMessage(user?.username ?? 'duck')}</h3>
         <Button type="primary" shape="round" size="large" onClick={enter}>
           Enter
         </Button>

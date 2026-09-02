@@ -13,8 +13,8 @@ import globalstyles from '../../global.module.scss';
 import { useNavigate } from 'react-router-dom';
 
 import duck from '../../img/duckicon.png';
-import { auth } from '../../firebase';
 import { useQuery } from '@tanstack/react-query';
+import { getOwnedStocks, updateStats } from '../../api';
 
 import exchange from '../../img/exchange.png';
 import bank from '../../img/bank.png';
@@ -52,40 +52,15 @@ export const StatsScreen = () => {
 
   const gap = '3em';
 
-  const userid = auth.currentUser?.uid;
-
-  const { data: owned_stocks } = useQuery(
-    [userid, 'stocks'],
-    async () => {
-      const res = await fetch(`/api/user/${userid}/stocks`);
-      return res.json();
-    }
-  );
-
-  const { data: update_stats } = useQuery(
-    [userid, 'update_stats'],
-    async () => {
-      const res = await fetch(`/api/user/${userid}/actions/update_stats`, {
-        method: 'POST',
-      });
-      return res.json();
-    }
-  );
-
-  const { data: all_stock_data } = useQuery(
-    ['stock'],
-    async () => {
-      const res = await fetch(`/api/stock/`);
-      return res.json();
-    }
-  );
-  console.log(owned_stocks, update_stats, all_stock_data);
+  const { data: owned_stocks } = useQuery(['owned_stocks'], getOwnedStocks);
+  const { data: update_stats } = useQuery(['update_stats'], updateStats);
 
   const checking_change =
-    update_stats?.p_new_checking - update_stats?.p_old_checking;
-  const saving_change = update_stats?.p_new_saving - update_stats?.p_old_saving;
+    (update_stats?.p_new_checking ?? 0) - (update_stats?.p_old_checking ?? 0);
+  const saving_change =
+    (update_stats?.p_new_savings ?? 0) - (update_stats?.p_old_savings ?? 0);
   const net_worth_change =
-    update_stats?.p_new_net_worth - update_stats?.p_old_net_worth;
+    (update_stats?.p_new_net_worth ?? 0) - (update_stats?.p_old_net_worth ?? 0);
   const checking_direction = checking_change >= 0 ? 'up' : 'down';
   const saving_direction = saving_change >= 0 ? 'up' : 'down';
   const net_worth_direction = net_worth_change >= 0 ? 'up' : 'down';
@@ -114,7 +89,7 @@ export const StatsScreen = () => {
         <div ref={ref1} style={{ width: '100%' }}>
           <NetWorthCard
             avatar={duck}
-            value={update_stats?.p_new_net_worth}
+            value={update_stats?.p_new_net_worth ?? 0}
             direction={net_worth_direction}
           />
         </div>
@@ -136,11 +111,11 @@ export const StatsScreen = () => {
             >
               <BankCard
                 checking={{
-                  value: update_stats?.p_new_checking,
+                  value: update_stats?.p_new_checking ?? 0,
                   direction: checking_direction,
                 }}
                 savings={{
-                  value: update_stats?.p_new_savings,
+                  value: update_stats?.p_new_savings ?? 0,
                   direction: saving_direction,
                 }}
               />
@@ -160,9 +135,10 @@ export const StatsScreen = () => {
             />
             <Card style={{ width: '100%' }}>
               <Flex vertical gap="1em">
-                {owned_stocks?.stocks.map((detailed_share: any) => {
+                {owned_stocks?.map((detailed_share) => {
                   return (
                     <SimpleStockRow
+                      key={detailed_share.stockid}
                       ticker={detailed_share.stock.name}
                       stock_id={detailed_share.stock.id}
                       marketPrice={detailed_share.stock.market_price}

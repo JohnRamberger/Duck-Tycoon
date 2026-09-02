@@ -25,11 +25,18 @@ Why ducks? ducks are cool :)
 
 
 ## Repository Structure
-This repository is set up in a simple and organized manner consisting of two larger directories: 
+This repository is set up in a simple and organized manner consisting of two directories: 
 >### /client
-> the frontend src files
->### /server
-> the backend src files
+> the React frontend (Create React App). Talks directly to Supabase; deployed to Firebase Hosting.
+>### /database
+> `supabase.sql` — Postgres schema, row-level security and all game logic as SQL functions. Run it once in the Supabase SQL editor.
+
+### Local setup
+1. Create a Supabase project and run `database/supabase.sql` in its SQL editor.
+2. Copy `client/.env.example` to `client/.env.local` and fill in the project URL and anon key.
+3. `cd client && npm install && npm start`.
+
+The original HackGT build used a Flask API on Cloud Run in front of Cloud SQL; that backend was retired in favour of calling Postgres functions from the client.
 
 ## Team Roles:
 

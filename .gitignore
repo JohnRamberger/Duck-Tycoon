@@ -1,1 +1,2 @@
-**/.env
+**/.env.playwright-mcp/
+client/.firebase/

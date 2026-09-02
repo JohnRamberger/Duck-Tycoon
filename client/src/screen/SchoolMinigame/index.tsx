@@ -9,7 +9,7 @@ import { SchoolQuestion } from '../../component/SchoolQuestion';
 import { SCHOOL_QUESTIONS } from '../../data/questions';
 import { useMutation } from '@tanstack/react-query';
 
-import { auth } from '../../firebase';
+import { study } from '../../api';
 
 export const SchoolMinigame: React.FC = () => {
   const nav = useNavigate();
@@ -31,25 +31,17 @@ export const SchoolMinigame: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const winMutation = useMutation({
-    mutationFn: ({ userid }: { userid: String }) =>
-      fetch(`/api/user/${userid}/actions/study`, {
-        method: 'POST'
-      }),
-  });
+  const winMutation = useMutation({ mutationFn: study });
 
   const handleNext = async () => {
     if (current === 4) {
       // check if won
       if (correct >= 4) {
-        winMutation.mutate(
-          { userid: auth.currentUser?.uid! },
-          {
-            onSuccess: () => {
-              setLoading(false);
-            },
-          }
-        );
+        winMutation.mutate(undefined, {
+          onSettled: () => {
+            setLoading(false);
+          },
+        });
       } else {
         setLoading(false);
       }

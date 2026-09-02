@@ -4,39 +4,15 @@ import globalstyles from '../../global.module.scss';
 import { StockQuantityRow } from '../../component/StockQuantityRow';
 import { StockRow } from '../../component/StockRow';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase';
 import { useQuery } from '@tanstack/react-query';
+import { getOwnedStocks, getStocks, updateStats } from '../../api';
 
 export const ExchangeScreen: React.FC = () => {
   const nav = useNavigate();
-  const userid = auth.currentUser?.uid;
 
-  const { data: owned_stocks } = useQuery(
-    [userid, 'stocks'],
-    async () => {
-      const res = await fetch(`/api/user/${userid}/stocks`);
-      return res.json();
-    }
-  );
-
-  const { data: update_stats } = useQuery(
-    [userid, 'update_stats'],
-    async () => {
-      const res = await fetch(`/api/user/${userid}/actions/update_stats`, {
-        method: 'POST',
-      });
-      return res.json();
-    }
-  );
-
-  const { data: all_stock_data } = useQuery(
-    ['stock'],
-    async () => {
-      const res = await fetch(`/api/stock/`);
-      return res.json();
-    }
-  );
-  
+  const { data: owned_stocks } = useQuery(['owned_stocks'], getOwnedStocks);
+  const { data: update_stats } = useQuery(['update_stats'], updateStats);
+  const { data: all_stock_data } = useQuery(['stocks'], getStocks);
 
   return (
     <div className={globalstyles.Center}>
@@ -72,9 +48,10 @@ export const ExchangeScreen: React.FC = () => {
               }}
               gap={'2px'}
             >
-              {owned_stocks?.stocks.map((owned_stock: any) => {
+              {owned_stocks?.map((owned_stock) => {
                 return (
                   <StockQuantityRow
+                    key={owned_stock.stockid}
                     ticker={owned_stock.stock.name}
                     stock_id={owned_stock.stockid}
                     marketPrice={owned_stock.stock.market_price}
@@ -102,27 +79,21 @@ export const ExchangeScreen: React.FC = () => {
               }}
               gap={'1em'}
             >
-              {all_stock_data?.stocks.map((stock: any) => {
+              {all_stock_data?.map((stock) => {
                 return (
                   <StockRow
+                    key={stock.id}
                     ticker={stock.name}
                     marketPrice={stock.market_price}
-                    buyingPower={update_stats?.p_new_checking}
+                    buyingPower={update_stats?.p_new_checking ?? 0}
                     sharesOwned={
-                      owned_stocks?.stocks.find(
-                        (share: any) => share.stockid === stock.id
-                      )?.num_shares_owned ?? 0
+                      owned_stocks?.find((share) => share.stockid === stock.id)
+                        ?.num_shares_owned ?? 0
                     }
                     stockId={stock.id}
                   />
                 );
               })}
-
-              <StockRow
-                ticker="DUCK"
-                marketPrice={100}
-                buyingPower={update_stats?.p_new_checking}
-              />
             </Flex>
           </Flex>
         </Flex>

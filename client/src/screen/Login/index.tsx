@@ -1,14 +1,8 @@
 import globalstyles from '../../global.module.scss';
 import { Button, Form, Input, message, Radio } from 'antd';
 import { useState } from 'react';
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-  signInWithEmailAndPassword,
-} from 'firebase/auth';
 
-import { auth } from '../../firebase';
-import { useMutation } from '@tanstack/react-query';
+import { supabase } from '../../supabase';
 
 type FieldType = {
   username?: string;
@@ -26,154 +20,89 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [messageApi, contextHolder] = message.useMessage();
   const [isLogin, setIsLogin] = useState(true);
 
-  const [choiceValue, setChoiceValue] = useState(0);
+  const [choiceValue, setChoiceValue] = useState<0 | 1>(0);
 
   const messageKey = 'key1';
 
   const onFinish = (values: FieldType) => {
-    console.log('Success:', values);
     messageApi.open({
       key: messageKey,
       type: 'loading',
       content: isLogin ? 'Logging you in...' : 'Creating your account...',
     });
 
-    // firebase
     if (isLogin) {
-      // Login user
       loginUser(values);
     } else {
-      // Register user
       registerUser(values);
     }
   };
 
-  const loginUser = (values: FieldType) => {
-    signInWithEmailAndPassword(auth, values.email!, values.password!)
-      .then((userCredential) => {
-        messageApi.open({
-          key: messageKey,
-          type: 'success',
-          content: `Logged in!`,
-          duration: 3,
-        });
-        onDone();
-      })
-      .catch((error) => {
-        messageApi.open({
-          key: messageKey,
-          type: 'error',
-          content: `Failed to login: ${error.message}`,
-          duration: 10,
-        });
+  const loginUser = async (values: FieldType) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: values.email!,
+      password: values.password!,
+    });
+
+    if (error) {
+      messageApi.open({
+        key: messageKey,
+        type: 'error',
+        content: `Failed to login: ${error.message}`,
+        duration: 10,
       });
+      return;
+    }
+
+    messageApi.open({
+      key: messageKey,
+      type: 'success',
+      content: `Logged in!`,
+      duration: 3,
+    });
+    onDone();
   };
 
-  const registerMutation = useMutation({
-    mutationFn: ({ username, userid }: { username: string; userid: String }) =>
-      fetch('/api/user/', {
-        method: 'post',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          userid: userid,
-        }),
-      }),
-  });
+  const registerUser = async (values: FieldType) => {
+    // username + path travel as signup metadata; a DB trigger creates the
+    // player row and bank account from them (see database/supabase.sql).
+    const { data, error } = await supabase.auth.signUp({
+      email: values.email!,
+      password: values.password!,
+      options: {
+        data: { username: values.username, path: choiceValue },
+      },
+    });
 
-  const routeMutation = useMutation({
-    mutationFn: ({ route, userid }: { route: number; userid: String }) =>
-      fetch(`/api/user/${userid}/actions/choose_path/${route}`, {
-        method: 'POST',
-      }),
-  });
-
-  const registerUser = (values: FieldType) => {
-    createUserWithEmailAndPassword(auth, values.email!, values.password!)
-      .then((userCredential) => {
-        // Signed up
-        // const user = userCredential.user;
-        messageApi.open({
-          key: messageKey,
-          type: 'loading',
-          content: `Account created! Updating Profile...`,
-        });
-
-        updateProfile(userCredential.user, {
-          displayName: values.username,
-        })
-          .then(async () => {
-            messageApi.open({
-              key: messageKey,
-              type: 'loading',
-              content: `Profile created! Creating ducks...`,
-            });
-
-            const res = await registerMutation.mutateAsync({
-              username: values.username!,
-              userid: userCredential.user.uid,
-            });
-
-            if (!res.ok) {
-              messageApi.open({
-                key: messageKey,
-                type: 'error',
-                content: `Failed to create ducks: ${res.statusText}`,
-                duration: 10,
-              });
-            } else {
-              messageApi.open({
-                key: messageKey,
-                type: 'loading',
-                content: `Ducks created! Choosing route...`,
-              });
-              const res_route = await routeMutation.mutateAsync({
-                route: choiceValue,
-                userid: userCredential.user.uid,
-              });
-
-              if (!res_route.ok) {
-                messageApi.open({
-                  key: messageKey,
-                  type: 'error',
-                  content: `Failed to create route: ${res_route.statusText}`,
-                  duration: 10,
-                });
-              } else {
-                messageApi.open({
-                  key: messageKey,
-                  type: 'success',
-                  content: `Done!`,
-                  duration: 3,
-                });
-
-                onDone();
-              }
-            }
-
-            // setTimeout(() => {
-            //   // redirect back to home page
-            // }, 3000);
-          })
-          .catch((error) => {
-            messageApi.open({
-              key: messageKey,
-              type: 'error',
-              content: `Failed to register account: ${error.message}`,
-              duration: 10,
-            });
-          });
-      })
-      .catch((error) => {
-        messageApi.open({
-          key: messageKey,
-          type: 'error',
-          content: `Failed to register account: ${error.message}`,
-          duration: 10,
-        });
+    if (error) {
+      messageApi.open({
+        key: messageKey,
+        type: 'error',
+        content: `Failed to register account: ${error.message}`,
+        duration: 10,
       });
+      return;
+    }
+
+    if (!data.session) {
+      // Email confirmation is on for this Supabase project.
+      messageApi.open({
+        key: messageKey,
+        type: 'info',
+        content: `Account created! Check your email to confirm, then log in.`,
+        duration: 10,
+      });
+      setIsLogin(true);
+      return;
+    }
+
+    messageApi.open({
+      key: messageKey,
+      type: 'success',
+      content: `Done!`,
+      duration: 3,
+    });
+    onDone();
   };
 
   const onFinishFailed = (errorInfo: any) => {
